@@ -36,16 +36,19 @@ Same pattern — open `browsername://extensions`, enable Developer mode, Load un
 
 Once loaded, the extension works automatically:
 
-- **Auto-redirect** — Any Medium article you open (`medium.com/...` or publication subdomains like `blog.medium.com/...`) is silently redirected through the Freedium mirror.
-- **Context menu** — Right-click any page or link → **Open in Freedium** to manually redirect a URL. Useful as a fallback if auto-redirect isn't wanted for a particular page.
+- **Icon popup** — Click the extension icon for a toggle to turn auto-redirect on/off instantly. A green "ON" badge shows when active.
+- **Auto-redirect** — When enabled, any Medium article you open (`medium.com/...` or publication subdomains like `blog.medium.com/...`) is silently redirected through the Freedium mirror.
+- **Manual button** — When auto-redirect is *off*, a floating "Read on Freedium" button appears on Medium article pages (top-right). Click it to redirect just that article.
+- **Context menu** — Right-click any page or link → **Open in Freedium** to manually redirect a URL. Always available regardless of toggle state.
 
 ## Changing the mirror domain
 
 Mirror domains can change over time. To update:
 
-1. Right-click the extension icon → **Options** (or click the icon and select Options)
+1. Click the extension icon → **Settings…** (or right-click the icon → **Options**)
 2. Enter the new domain (e.g. `freedium-mirror.cfd`)
-3. Changes apply immediately — no need to reload
+3. Configure the **Auto Redirect** and **Manual Button** toggles as desired
+4. Changes apply immediately — no need to reload
 
 The default is `freedium-mirror.cfd`.
 
@@ -63,12 +66,15 @@ After code changes, click the refresh icon on the extension card at `chrome://ex
 ```
 ├── manifest.json      # extension manifest (MV3)
 ├── background.ts      # service worker — dynamic redirect rules + context menu
-├── content.ts         # content script — catches SPA navigations on Medium
+├── content.ts         # content script — SPA nav detection + manual button injection
+├── popup.html         # popup UI (auto-redirect toggle)
+├── popup.ts           # popup logic
 ├── options.html       # options page UI
 ├── options.ts         # options page logic
 ├── rules.json         # documented fallback static ruleset (not loaded by manifest)
 ├── icons/             # extension icons
 ├── scripts/           # utility scripts (icon generator)
+├── CHANGELOG.md       # release history
 └── tsconfig.json
 ```
 

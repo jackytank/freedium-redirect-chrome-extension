@@ -12,15 +12,33 @@
     }
     h1 {
       font-size: 1.25rem;
-      margin: 0 0 16px;
+      margin: 0 0 20px;
     }
-    label {
-      display: block;
-      font-size: 0.875rem;
-      margin-bottom: 6px;
+    .section {
+      margin-bottom: 20px;
+    }
+    .section-label {
+      font-size: 0.8125rem;
+      font-weight: 600;
       color: #555;
+      margin-bottom: 8px;
     }
-    input {
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .row-label {
+      font-size: 0.875rem;
+      color: #444;
+    }
+    .hint {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 2px;
+    }
+    input[type="text"] {
       box-sizing: border-box;
       width: 100%;
       padding: 8px 10px;
@@ -29,36 +47,93 @@
       border-radius: 4px;
       outline: none;
     }
-    input:focus {
+    input[type="text"]:focus {
       border-color: #1a56db;
       box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.15);
     }
-    .hint {
-      margin-top: 6px;
-      font-size: 0.8rem;
-      color: #888;
-    }
     #status {
-      margin-top: 12px;
+      margin-top: 16px;
       font-size: 0.85rem;
       color: #1a56db;
       min-height: 1.2em;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      border-radius: 22px;
+      transition: background-color 0.2s;
+    }
+    .toggle-slider::before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    .toggle input:checked + .toggle-slider {
+      background-color: #1a8917;
+    }
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(18px);
     }
   </style>
 </head>
 <body>
   <h1>Freedium Redirect</h1>
 
-  <label for="mirrorDomain">Mirror domain</label>
-  <input
-    type="text"
-    id="mirrorDomain"
-    placeholder="freedium-mirror.cfd"
-    spellcheck="false"
-  >
-  <div class="hint">
-    Medium articles will be redirected through this domain.
-    Changes apply immediately.
+  <div class="section">
+    <div class="section-label">Behaviour</div>
+
+    <div class="row">
+      <span class="row-label">Auto Redirect</span>
+      <label class="toggle">
+        <input type="checkbox" id="autoRedirectEnabled">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="hint">When ON, every Medium article is automatically redirected to the mirror. When OFF, only the manual button and right-click menu do the job.</div>
+
+    <div class="row" style="margin-top: 12px;">
+      <span class="row-label">Manual Button</span>
+      <label class="toggle">
+        <input type="checkbox" id="manualButtonEnabled">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="hint">When ON and Auto Redirect is OFF, displays a floating &ldquo;Read on Freedium&rdquo; button on Medium article pages.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Mirror domain</div>
+    <input
+      type="text"
+      id="mirrorDomain"
+      placeholder="freedium-mirror.cfd"
+      spellcheck="false"
+    >
+    <div class="hint">
+      Medium articles will be redirected through this domain. Changes apply immediately.
+    </div>
   </div>
 
   <div id="status"></div>

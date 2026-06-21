@@ -15,8 +15,8 @@ async function load(): Promise<void> {
   mirrorDisplay.textContent = `Mirror: ${(data.mirrorDomain as string) || DEFAULT_MIRROR}`;
 }
 
-toggle.addEventListener("change", () => {
-  chrome.storage.sync.set({ autoRedirectEnabled: toggle.checked });
+toggle.addEventListener("change", async () => {
+  await chrome.storage.sync.set({ autoRedirectEnabled: toggle.checked });
 });
 
 settingsLink.addEventListener("click", (e) => {

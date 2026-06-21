@@ -18,11 +18,13 @@ async function getSettings(): Promise<{ autoRedirectEnabled: boolean; mirrorDoma
   };
 }
 
+async function getMirrorDomain(): Promise<string> {
+  const { mirrorDomain } = await getSettings();
+  return mirrorDomain;
+}
+
 async function registerRedirectRule(): Promise<void> {
-  const domain = await (async () => {
-    const { mirrorDomain } = await chrome.storage.sync.get({ mirrorDomain: DEFAULT_MIRROR });
-    return (mirrorDomain as string) || DEFAULT_MIRROR;
-  })();
+  const domain = await getMirrorDomain();
 
   const rule: chrome.declarativeNetRequest.Rule = {
     id: RULE_ID,
@@ -52,19 +54,27 @@ async function removeRedirectRule(): Promise<void> {
 }
 
 async function updateBadge(enabled: boolean): Promise<void> {
-  if (enabled) {
-    await chrome.action.setBadgeText({ text: "ON" });
-    await chrome.action.setBadgeBackgroundColor({ color: "#1a8917" });
-  } else {
-    await chrome.action.setBadgeText({ text: "" });
+  try {
+    if (enabled) {
+      await chrome.action.setBadgeText({ text: "ON" });
+      await chrome.action.setBadgeBackgroundColor({ color: "#1a8917" });
+    } else {
+      await chrome.action.setBadgeText({ text: "" });
+    }
+  } catch {
+    // badge API unavailable in some contexts — non-critical
   }
 }
 
-async function syncRuleFromSettings(autoRedirectEnabled: boolean): Promise<void> {
-  if (autoRedirectEnabled) {
-    await registerRedirectRule();
-  } else {
-    await removeRedirectRule();
+async function syncRuleFromState(autoRedirectEnabled: boolean): Promise<void> {
+  try {
+    if (autoRedirectEnabled) {
+      await registerRedirectRule();
+    } else {
+      await removeRedirectRule();
+    }
+  } catch {
+    // declarativeNetRequest may fail if permissions changed — log but don't crash
   }
   await updateBadge(autoRedirectEnabled);
 }
@@ -72,7 +82,7 @@ async function syncRuleFromSettings(autoRedirectEnabled: boolean): Promise<void>
 // --- Install / update handler ---
 chrome.runtime.onInstalled.addListener(async () => {
   const { autoRedirectEnabled } = await getSettings();
-  await syncRuleFromSettings(autoRedirectEnabled);
+  await syncRuleFromState(autoRedirectEnabled);
 
   chrome.contextMenus.create({
     id: "open-in-freedium",
@@ -84,28 +94,44 @@ chrome.runtime.onInstalled.addListener(async () => {
 // --- Start-up initialisation (service worker can restart anytime) ---
 (async () => {
   const { autoRedirectEnabled } = await getSettings();
-  await syncRuleFromSettings(autoRedirectEnabled);
+  await syncRuleFromState(autoRedirectEnabled);
 })();
 
 // --- Storage change handler ---
+// React to any sync storage change — popup/options save triggers this.
+// Use newValue directly when available to avoid a second async read that
+// could be interrupted by service worker termination.
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area === "sync") {
-    if (changes.mirrorDomain || changes.autoRedirectEnabled) {
-      const { autoRedirectEnabled, mirrorDomain } = await getSettings();
-      await syncRuleFromSettings(autoRedirectEnabled);
-    }
+  if (area !== "sync") return;
+
+  let autoRedirectEnabled: boolean | undefined;
+  let mirrorDomain: string | undefined;
+
+  if (changes.autoRedirectEnabled) {
+    autoRedirectEnabled = changes.autoRedirectEnabled.newValue as boolean;
   }
+  if (changes.mirrorDomain) {
+    mirrorDomain = (changes.mirrorDomain.newValue as string) || DEFAULT_MIRROR;
+  }
+
+  if (autoRedirectEnabled === undefined && mirrorDomain === undefined) return;
+  if (autoRedirectEnabled === undefined) {
+    const s = await getSettings();
+    autoRedirectEnabled = s.autoRedirectEnabled;
+  }
+
+  await syncRuleFromState(autoRedirectEnabled);
 });
 
 // --- Context menu handler (manual fallback) ---
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  const { mirrorDomain } = await getSettings();
+  const domain = await getMirrorDomain();
   const targetUrl = info.linkUrl || info.pageUrl || tab?.url;
 
   if (!targetUrl || !tab?.id) return;
-  if (targetUrl.includes(mirrorDomain)) return;
+  if (targetUrl.includes(domain)) return;
 
-  chrome.tabs.update(tab.id, { url: `https://${mirrorDomain}/${targetUrl}` });
+  chrome.tabs.update(tab.id, { url: `https://${domain}/${targetUrl}` });
 });
 
 // --- SPA navigation (auto-redirect mode) ---

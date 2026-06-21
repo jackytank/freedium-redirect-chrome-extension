@@ -1,9 +1,16 @@
 <!--
   When adding a new release, prepend it below this comment (above the most recent entry).
-  Keep the "## [Unreleased]" section at the very top for work-in-progress.
+  Each release section is copy-pasted directly into the GitHub release notes.
+  Keep the GitHub release title as: "v<VERSION> — <one-line summary>"
 -->
 
 # Changelog
+
+## [0.2.1] — 2026-06-21
+
+### Fixed
+- Popup toggle and options page now reliably toggle auto-redirect on/off. The root cause was a fire-and-forget `chrome.storage.sync.set()` in the popup (could fail if popup closed before write committed) and an extra async storage read inside the `onChanged` handler that could be interrupted by service worker termination.
+- Popup toggle handler now `await`s the storage write. Background `onChanged` handler uses `newValue` directly from the change event instead of re-reading storage. Error handling added around `declarativeNetRequest` and badge API calls.
 
 ## [0.2.0] — 2026-06-21
 

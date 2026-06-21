@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Freedium Redirect",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Redirects Medium articles to a Freedium mirror.",
   "permissions": ["declarativeNetRequest", "storage", "contextMenus"],
   "host_permissions": [

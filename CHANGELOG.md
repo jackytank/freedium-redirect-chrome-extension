@@ -6,6 +6,18 @@
 
 # Changelog
 
+## [0.3.0] — 2026-06-21
+
+### Removed
+- **Auto-redirect feature removed entirely** — The `declarativeNetRequest` dynamic redirect rule, badge updates, auto-redirect toggle, and all associated logic have been stripped. The extension no longer automatically redirects Medium articles; it only provides a manual "Read on Freedium" button (content script) and a right-click context menu entry.
+
+### Changed
+- `manifest.json` — removed `declarativeNetRequest` permission.
+- `background.ts` — simplified to context menu creation/click handling and `MANUAL_REDIRECT` message handler only.
+- `content.ts` — the manual button is now the only mode; no longer conditional on auto-redirect being off.
+- `popup.html` / `popup.ts` — removed the Auto Redirect toggle; now displays the mirror domain and a Settings link.
+- `options.html` / `options.ts` — removed the Auto Redirect toggle; only Manual Button toggle and mirror domain remain.
+
 ## [0.2.1] — 2026-06-21
 
 ### Fixed

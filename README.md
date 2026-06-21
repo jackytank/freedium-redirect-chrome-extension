@@ -1,6 +1,6 @@
 # Freedium Redirect
 
-Chrome extension that redirects Medium articles to a Freedium mirror so paywalled content is readable without a subscription.
+Chrome extension that lets you manually open Medium articles on a Freedium mirror so paywalled content is readable without a subscription.
 
 ## Setup
 
@@ -34,23 +34,17 @@ Same pattern — open `browsername://extensions`, enable Developer mode, Load un
 
 ## Usage
 
-Once loaded, the extension works automatically:
+Once loaded, you can redirect Medium articles in two ways:
 
-- **Icon popup** — Click the extension icon for a toggle to turn auto-redirect on/off instantly. A green "ON" badge shows when active.
-- **Auto-redirect** — When enabled, any Medium article you open (`medium.com/...` or publication subdomains like `blog.medium.com/...`) is silently redirected through the Freedium mirror.
-- **Manual button** — When auto-redirect is *off*, a floating "Read on Freedium" button appears on Medium article pages (top-right). Click it to redirect just that article.
-- **Context menu** — Right-click any page or link → **Open in Freedium** to manually redirect a URL. Always available regardless of toggle state.
+- **Manual button** — When enabled in settings, a floating "Read on Freedium" button appears on Medium article pages (top-right). Click it to open the current article on the mirror.
+- **Context menu** — Right-click any page or link → **Open in Freedium** to manually redirect a URL. Always available.
 
-## Changing the mirror domain
+## Settings
 
-Mirror domains can change over time. To update:
+Click the extension icon → **Settings…** (or right-click the icon → **Options**) to configure:
 
-1. Click the extension icon → **Settings…** (or right-click the icon → **Options**)
-2. Enter the new domain (e.g. `freedium-mirror.cfd`)
-3. Configure the **Auto Redirect** and **Manual Button** toggles as desired
-4. Changes apply immediately — no need to reload
-
-The default is `freedium-mirror.cfd`.
+- **Manual Button** — toggle the floating button on/off
+- **Mirror domain** — set the mirror domain (default: `freedium-mirror.cfd`). Mirror domains can change over time, so you can update it here without reloading the extension.
 
 ## Development
 
@@ -65,13 +59,13 @@ After code changes, click the refresh icon on the extension card at `chrome://ex
 
 ```
 ├── manifest.json      # extension manifest (MV3)
-├── background.ts      # service worker — dynamic redirect rules + context menu
-├── content.ts         # content script — SPA nav detection + manual button injection
-├── popup.html         # popup UI (auto-redirect toggle)
+├── background.ts      # service worker — context menu + manual redirect handling
+├── content.ts         # content script — manual button injection + SPA nav handling
+├── popup.html         # popup UI (mirror domain display + settings link)
 ├── popup.ts           # popup logic
 ├── options.html       # options page UI
 ├── options.ts         # options page logic
-├── rules.json         # documented fallback static ruleset (not loaded by manifest)
+├── rules.json         # documented reference ruleset (not loaded by manifest)
 ├── icons/             # extension icons
 ├── scripts/           # utility scripts (icon generator)
 ├── CHANGELOG.md       # release history

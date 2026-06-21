@@ -3,7 +3,7 @@
   "name": "Freedium Redirect",
   "version": "0.2.1",
   "description": "Redirects Medium articles to a Freedium mirror.",
-  "permissions": ["declarativeNetRequest", "storage", "contextMenus"],
+  "permissions": ["storage", "contextMenus"],
   "host_permissions": [
     "*://medium.com/*",
     "*://*.medium.com/*"

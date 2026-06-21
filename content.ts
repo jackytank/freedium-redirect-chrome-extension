@@ -1,37 +1,23 @@
 export {};
 
-let autoRedirectEnabled = true;
 let manualButtonEnabled = true;
 
 async function syncSettings(): Promise<void> {
-  const data = await chrome.storage.sync.get({
-    autoRedirectEnabled: true,
-    manualButtonEnabled: true,
-  });
-  autoRedirectEnabled = data.autoRedirectEnabled as boolean;
+  const data = await chrome.storage.sync.get({ manualButtonEnabled: true });
   manualButtonEnabled = data.manualButtonEnabled as boolean;
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "sync") return;
 
-  let refreshButton = false;
-
-  if (changes.autoRedirectEnabled) {
-    autoRedirectEnabled = changes.autoRedirectEnabled.newValue as boolean;
-    refreshButton = true;
-  }
   if (changes.manualButtonEnabled) {
     manualButtonEnabled = changes.manualButtonEnabled.newValue as boolean;
-    refreshButton = true;
-  }
 
-  if (!refreshButton) return;
-
-  if (!manualButtonEnabled || autoRedirectEnabled) {
-    document.getElementById("freedium-btn")?.remove();
-  } else {
-    tryInjectButton();
+    if (!manualButtonEnabled) {
+      document.getElementById("freedium-btn")?.remove();
+    } else {
+      tryInjectButton();
+    }
   }
 });
 
@@ -81,7 +67,7 @@ function createButton(targetUrl: string): HTMLButtonElement {
 }
 
 function tryInjectButton(): void {
-  if (!document.body || !manualButtonEnabled || autoRedirectEnabled) return;
+  if (!document.body || !manualButtonEnabled) return;
 
   const url = location.href;
   if (!isArticlePath(new URL(url).pathname)) {
@@ -104,11 +90,6 @@ let lastUrl = location.href;
 function checkForNavigation(): void {
   if (location.href !== lastUrl) {
     lastUrl = location.href;
-
-    if (autoRedirectEnabled && isArticlePath(new URL(location.href).pathname)) {
-      chrome.runtime.sendMessage({ type: "MEDIUM_NAVIGATION", url: location.href });
-      return;
-    }
   }
 
   tryInjectButton();
